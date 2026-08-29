@@ -1,0 +1,295 @@
+{% extends "arm_project/base.html" %}
+{% block title %}{{ patient.get_full_name }} — АРМ Врача{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h4 class="fw-bold mb-0">{{ patient.get_full_name|default:patient.username }}</h4>
+        {% if profile %}
+        <span class="text-muted small">ИИН: {{ profile.iin }} &bull; {{ profile.phone }} &bull; {{ profile.address }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4" id="patientTabs">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-appointments"><i class="bi bi-calendar3 me-1"></i>Записи</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-tests"><i class="bi bi-clipboard2-pulse me-1"></i>Анализы</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-health"><i class="bi bi-activity me-1"></i>Дневник здоровья</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-chat"><i class="bi bi-chat-dots me-1"></i>Чат</a></li>
+</ul>
+
+<div class="tab-content">
+
+  <!-- APPOINTMENTS TAB -->
+  <div class="tab-pane fade show active" id="tab-appointments">
+    <div class="card">
+      <div class="card-body p-0">
+        {% if appointments %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr><th>Дата/Время</th><th>Жалоба</th><th>Статус</th><th>Заметка врача</th><th>Изменить</th></tr>
+            </thead>
+            <tbody>
+            {% for apt in appointments %}
+            <tr>
+              <td>{{ apt.datetime|date:"d.m.Y H:i" }}</td>
+              <td style="max-width:200px">{{ apt.complaint|truncatechars:50 }}</td>
+              <td>
+                {% if apt.status == 'waiting' %}<span class="badge badge-waiting">Ожидание</span>
+                {% elif apt.status == 'accepted' %}<span class="badge badge-accepted text-white">Принят</span>
+                {% elif apt.status == 'done' %}<span class="badge badge-done text-white">Завершён</span>
+                {% else %}<span class="badge badge-cancelled text-white">Отменён</span>{% endif %}
+              </td>
+              <td class="text-muted small">{{ apt.doctor_note|default:"—"|truncatechars:40 }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#aptModal{{ apt.id }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </td>
+            </tr>
+            <!-- Modal -->
+            <div class="modal fade" id="aptModal{{ apt.id }}" tabindex="-1">
+              <div class="modal-dialog"><div class="modal-content">
+                <form method="post" action="{% url 'appointment_update' apt.id %}">
+                  {% csrf_token %}
+                  <div class="modal-header">
+                    <h5 class="modal-title">Запись от {{ apt.datetime|date:"d.m.Y" }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label class="form-label">Жалоба пациента</label>
+                      <textarea class="form-control" readonly rows="2">{{ apt.complaint }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Статус</label>
+                      <select name="status" class="form-select">
+                        <option value="waiting" {% if apt.status == 'waiting' %}selected{% endif %}>Ожидание</option>
+                        <option value="accepted" {% if apt.status == 'accepted' %}selected{% endif %}>Принят</option>
+                        <option value="done" {% if apt.status == 'done' %}selected{% endif %}>Завершён</option>
+                        <option value="cancelled" {% if apt.status == 'cancelled' %}selected{% endif %}>Отменён</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Рекомендация / Заметка</label>
+                      <textarea name="doctor_note" class="form-control" rows="3" placeholder="Введите рекомендацию...">{{ apt.doctor_note }}</textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                  </div>
+                </form>
+              </div></div>
+            </div>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">Записей нет</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTS TAB -->
+  <div class="tab-pane fade" id="tab-tests">
+    <div class="row g-3">
+      <div class="col-md-7">
+        <div class="card">
+          <div class="card-body p-0">
+            {% if test_results %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr><th>Дата</th><th>Показатель</th><th>Значение</th><th>Ед.</th><th>Норма</th></tr>
+                </thead>
+                <tbody>
+                {% for t in test_results %}
+                <tr>
+                  <td>{{ t.date|date:"d.m.Y" }}</td>
+                  <td class="fw-semibold">{{ t.indicator }}</td>
+                  <td>{{ t.value }}</td>
+                  <td class="text-muted">{{ t.unit }}</td>
+                  <td class="text-muted small">{{ t.norm|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">Анализов нет</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="card">
+          <div class="card-header bg-white border-0 fw-bold">Добавить результат анализа</div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add_test">
+              <div class="mb-2">
+                <label class="form-label small fw-semibold">Показатель</label>
+                <input type="text" name="indicator" class="form-control form-control-sm" placeholder="Глюкоза" required>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-semibold">Значение</label>
+                  <input type="text" name="value" class="form-control form-control-sm" placeholder="5.5" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-semibold">Единица</label>
+                  <input type="text" name="unit" class="form-control form-control-sm" placeholder="ммоль/л">
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label small fw-semibold">Норма</label>
+                <input type="text" name="norm" class="form-control form-control-sm" placeholder="3.9–6.1">
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Дата</label>
+                <input type="date" name="date" class="form-control form-control-sm" required>
+              </div>
+              <button type="submit" class="btn btn-success btn-sm w-100">
+                <i class="bi bi-plus-circle me-1"></i>Добавить
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH LOG TAB -->
+  <div class="tab-pane fade" id="tab-health">
+    {% if health_logs %}
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="card p-3"><canvas id="chartWeight"></canvas></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3"><canvas id="chartPressure"></canvas></div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3"><canvas id="chartSugar"></canvas></div>
+      </div>
+    </div>
+    <div class="card mt-3">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr><th>Дата</th><th>Вес (кг)</th><th>Давление</th><th>Сахар</th><th>Заметка</th></tr>
+            </thead>
+            <tbody>
+            {% for log in health_logs %}
+            <tr>
+              <td>{{ log.date|date:"d.m.Y" }}</td>
+              <td>{{ log.weight|default:"—" }}</td>
+              <td>{% if log.systolic %}{{ log.systolic }}/{{ log.diastolic }}{% else %}—{% endif %}</td>
+              <td>{{ log.blood_sugar|default:"—" }}</td>
+              <td class="text-muted small">{{ log.note|default:"—"|truncatechars:40 }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-activity fs-1 d-block mb-2 opacity-25"></i>
+      Пациент ещё не вёл дневник здоровья
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- CHAT TAB -->
+  <div class="tab-pane fade" id="tab-chat">
+    <div class="card" style="max-width:700px">
+      <div class="card-body" style="max-height:450px;overflow-y:auto;" id="chatBox">
+        {% if messages_qs %}
+          {% for msg in messages_qs %}
+          <div class="d-flex {% if msg.sender.is_staff %}justify-content-end{% endif %}">
+            <div class="chat-bubble {% if msg.sender.is_staff %}doctor{% else %}patient{% endif %}">
+              <div class="small fw-semibold mb-1 {% if msg.sender.is_staff %}text-white-50{% else %}text-muted{% endif %}">
+                {{ msg.sender.get_full_name|default:msg.sender.username }}
+              </div>
+              {{ msg.text }}
+              <div class="small {% if msg.sender.is_staff %}text-white-50{% else %}text-muted{% endif %} mt-1">
+                {{ msg.created_at|date:"d.m H:i" }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-4 text-muted">Сообщений пока нет</div>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-white">
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="send_message">
+          <input type="text" name="text" class="form-control" placeholder="Введите ответ пациенту..." required>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-send"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const labels = {{ chart_dates|safe }};
+const colorGreen = 'rgba(26,107,58,0.8)';
+const colorBlue = 'rgba(13,110,253,0.8)';
+const colorOrange = 'rgba(255,165,0,0.8)';
+
+function makeChart(id, label, data, color) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: color.replace('0.8', '0.1'),
+                borderWidth: 2,
+                pointRadius: 4,
+                tension: 0.3,
+                fill: true,
+                spanGaps: true,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: true, position: 'top' } },
+            scales: { y: { beginAtZero: false } }
+        }
+    });
+}
+
+makeChart('chartWeight', 'Вес (кг)', {{ chart_weight|safe }}, colorGreen);
+makeChart('chartPressure', 'Давление сист.', {{ chart_systolic|safe }}, colorBlue);
+makeChart('chartSugar', 'Сахар крови', {{ chart_sugar|safe }}, colorOrange);
+
+// Scroll chat to bottom
+const chatBox = document.getElementById('chatBox');
+if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

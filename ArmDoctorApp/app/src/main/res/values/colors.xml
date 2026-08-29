@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ════════════════════════════════════════════════════
+     res/values/colors.xml
+════════════════════════════════════════════════════ -->
+<resources>
+    <!-- Brand -->
+    <color name="primary_green">#1A6B3A</color>
+    <color name="primary_green_light">#E8F5E9</color>
+    <color name="primary_green_dark">#0D4A28</color>
+
+    <!-- Backgrounds -->
+    <color name="bg_surface">#F0F4F8</color>
+    <color name="bg_chat">#ECF0F1</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#4A4A68</color>
+    <color name="text_hint">#9E9EB5</color>
+
+    <!-- Status -->
+    <color name="status_ok">#2E7D32</color>
+    <color name="status_bad">#C62828</color>
+    <color name="status_waiting">#F57F17</color>
+    <color name="status_neutral">#607D8B</color>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ════════════════════════════════════════════════════
+     res/menu/bottom_nav_menu.xml
+════════════════════════════════════════════════════ -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_tests"
+        android:icon="@drawable/ic_test_tube"
+        android:title="Анализы" />
+
+    <item
+        android:id="@+id/nav_appointments"
+        android:icon="@drawable/ic_calendar"
+        android:title="Записи" />
+
+    <item
+        android:id="@+id/nav_chat"
+        android:icon="@drawable/ic_chat"
+        android:title="Чат" />
+
+</menu>

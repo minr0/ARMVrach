@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_chat">#ECF0F1</color>
+    <color name="bg_surface">#F0F4F8</color>
+    <color name="primary_green">#1A6B3A</color>
+    <color name="primary_green_dark">#0D4A28</color>
+    <color name="primary_green_light">#E8F5E9</color>
+    <color name="status_bad">#C62828</color>
+    <color name="status_neutral">#607D8B</color>
+    <color name="status_ok">#2E7D32</color>
+    <color name="status_waiting">#F57F17</color>
+    <color name="text_hint">#9E9EB5</color>
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#4A4A68</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">АРМ Врача</string>
+    <string name="nav_appointments">Записи</string>
+    <string name="nav_chat">Чат</string>
+    <string name="nav_tests">Анализы</string>
+    <style name="Theme.ArmDoctor" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="android:colorBackground">@color/bg_surface</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+</resources>

@@ -1,0 +1,48 @@
+{% extends "arm_project/base.html" %}
+{% block title %}Пациенты — АРМ Врача{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Список пациентов</h4>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        {% if profiles %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ФИО</th>
+                        <th>ИИН</th>
+                        <th>Телефон</th>
+                        <th>Адрес</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td class="fw-semibold">{{ profile.user.get_full_name|default:profile.user.username }}</td>
+                    <td><code>{{ profile.iin }}</code></td>
+                    <td>{{ profile.phone|default:"—" }}</td>
+                    <td class="text-muted">{{ profile.address|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'patient_detail' profile.user.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-person-lines-fill me-1"></i>Карта
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-people fs-1 d-block mb-2 opacity-25"></i>
+            Пациентов пока нет
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

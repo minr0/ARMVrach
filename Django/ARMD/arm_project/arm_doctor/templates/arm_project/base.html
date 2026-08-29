@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}АРМ Сельского Врача{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f4f8; }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1a6b3a 0%, #0d4a28 100%);
+        }
+        .sidebar .nav-link { color: rgba(255,255,255,.75); border-radius: 8px; margin: 2px 0; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,.15); color: #fff; }
+        .sidebar .nav-link i { width: 20px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+        .badge-waiting { background-color: #ffc107; color: #000; }
+        .badge-accepted { background-color: #198754; }
+        .badge-done { background-color: #6c757d; }
+        .badge-cancelled { background-color: #dc3545; }
+        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 18px; margin-bottom: 8px; }
+        .chat-bubble.doctor { background: #1a6b3a; color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+        .chat-bubble.patient { background: #fff; border: 1px solid #dee2e6; border-bottom-left-radius: 4px; }
+        .brand-title { font-size: 1rem; font-weight: 700; color: #fff; }
+        .brand-sub { font-size: .7rem; color: rgba(255,255,255,.6); }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-2 d-none d-md-block sidebar py-3 px-3">
+      <div class="mb-4 ps-2">
+        <div class="brand-title"><i class="bi bi-heart-pulse-fill me-2"></i>АРМ Врача</div>
+        <div class="brand-sub">Сельская амбулатория</div>
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+            <i class="bi bi-house-door me-2"></i>Дашборд
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'patient' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'patient_list' %}">
+            <i class="bi bi-people me-2"></i>Пациенты
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'chat_list' %}active{% endif %}" href="{% url 'chat_list' %}">
+            <i class="bi bi-chat-dots me-2"></i>Чат
+            {% if unread_count %}
+              <span class="badge bg-danger rounded-pill ms-1">{{ unread_count }}</span>
+            {% endif %}
+          </a>
+        </li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <a href="{% url 'logout' %}" class="nav-link text-danger">
+          <i class="bi bi-box-arrow-left me-2"></i>Выйти
+        </a>
+        <div class="ps-2 mt-2" style="font-size:.75rem;color:rgba(255,255,255,.5)">
+          {{ request.user.get_full_name }}
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-10 ms-sm-auto px-4 py-4">
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+            {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/values/themes.xml -->
+<resources>
+    <style name="Theme.ArmDoctor" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="android:colorBackground">@color/bg_surface</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+</resources>

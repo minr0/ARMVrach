@@ -1,0 +1,3 @@
+-keep class kz.arm.doctor.data.models.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
